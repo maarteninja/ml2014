@@ -1,16 +1,16 @@
 import numpy as np
 import math
 
-'''
-Generates toy data like in MLPR book
-Returns N-dimensional vectors x and t, where 
-x contains evenly spaced values from 0 to 2pi
-and elements ti of t are distributed according
-to ti ~ N(mean, variance) where xi is the ith
-element of x, the mean = sin(xi) and
-standard deviation = 0.2
-'''
 def gen_sinusoidal(N):
+	'''
+	Generates toy data like in MLPR book
+	Returns N-dimensional vectors x and t, where 
+	x contains evenly spaced values from 0 to 2pi
+	and elements ti of t are distributed according
+	to ti ~ N(mean, variance) where xi is the ith
+	element of x, the mean = sin(xi) and
+	standard deviation = 0.2
+	'''
 	x = np.linspace(0, 2*math.pi, N)
 	t = []
 	sigma = 0.2
@@ -18,16 +18,17 @@ def gen_sinusoidal(N):
 		mu = math.sin(i)
 		s = np.random.normal(mu, sigma)
 		t.append(s)
+	t = np.array(t)
 	return x, t
 
-'''
-Finds maximum-likelihood solution of 
-unregularized M-th order fit_polynomial
-for dataset x using t as the target vector.
-Returns w -> maximum-likelihood parameter
-estimates
-'''
 def fit_polynomial(x, t, M):
+	'''
+	Finds maximum-likelihood solution of 
+	unregularized M-th order fit_polynomial
+	for dataset x using t as the target vector.
+	Returns w -> maximum-likelihood parameter
+	estimates
+	'''
 	pass
 
 vectors = gen_sinusoidal(10)
