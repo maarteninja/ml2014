@@ -29,7 +29,12 @@ def fit_polynomial(x, t, M):
 	Returns w -> maximum-likelihood parameter
 	estimates
 	'''
+	bias = np.linspace(0, M-1, M).reshape(1,M)
+	x = x.reshape(1, len(x))
+	design_matrix = np.power(x.T, bias)
+
+def error_function(w, matrix):
 	pass
 
 vectors = gen_sinusoidal(10)
-fit_polynomial(vectors[0], vectors[1], 3)
+fit_polynomial(vectors[0], vectors[1], 5)
