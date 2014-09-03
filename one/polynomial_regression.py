@@ -18,5 +18,17 @@ def gen_sinusoidal(N):
 		mu = math.sin(i)
 		s = np.random.normal(mu, sigma)
 		t.append(s)
+	return x, t
 
-gen_sinusoidal(10)
+'''
+Finds maximum-likelihood solution of 
+unregularized M-th order fit_polynomial
+for dataset x using t as the target vector.
+Returns w -> maximum-likelihood parameter
+estimates
+'''
+def fit_polynomial(x, t, M):
+	pass
+
+vectors = gen_sinusoidal(10)
+fit_polynomial(vectors[0], vectors[1], 3)
