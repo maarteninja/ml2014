@@ -32,6 +32,8 @@ def model_selection_by_cross_validation():
     x, t = gen_sinusoidal(n)
     indices = kfold_indices(n, k)
 
+    min_error = np.inf
+
     # loop over m and lambda
     for m in range(11):
         for lambda_exp in range(10, -1, -1):
@@ -56,10 +58,14 @@ def model_selection_by_cross_validation():
                 prediction = [np.sum(w.item(p) * (x_value** p) for p in range(m+1))]
                 avg_error += (prediction - t_value)/k
 
+        if avg_error < min_error:
+            best_model = (m, lamb)
+    return m, lamb
+
 if __name__ == '__main__':
     #one_point_three_plot()
     #x, t = gen_sinusoidal(10)
     #w = fit_polynomial(x, t, 3)
     #print w
-    model_selection_by_cross_validation()
+    print model_selection_by_cross_validation()
 
