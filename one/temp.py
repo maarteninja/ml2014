@@ -7,11 +7,9 @@ def fit_polynomial_reg(x, t, m, lamb):
     """
     Phi = create_phi(x, t, m)
 
-    i = np.eye(np.size(Phi, 0))
-    print i
+    i = np.eye(np.size(Phi, 1))
 
     w = (lamb * i)
-    print w
     w = (w + Phi.T.dot(Phi)).I
     w = w.dot(Phi.T).dot(t)
     return w
