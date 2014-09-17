@@ -39,29 +39,49 @@ def question_2_4():
     plt.plot(X, t, 'o')
     upper = []
     lower = []
-    for x in X:
+    for x in ls:
         mean, var = predict_polynomial_bayes(x, mn, Sn, beta)
         mean = float(mean)
         var = float(var)
         upper.append(mean + sqrt(var))
         lower.append(mean - sqrt(var))
-    lower = array(lower)
-    upper = array(upper)
-    plt.fill_between(X, lower, upper, alpha=0.1)
+
+    plt.fill_between(ls, upper, lower, alpha=0.1)
+    plt.show()
+
+def question_2_4_b():
+    N = 7
+    M = 5
+    alpha = 0.5
+    beta = 1/0.2**2
+    res = 1000
+    X, t = gen_sinusoidal2(N)
+    Sn, mn = fit_polynomial_bayes(X, t, M, alpha, beta)
+    ls = linspace(0, 2*math.pi, res)
+    plot_sine(ls)
+    plot_polynomial(ls, mn)
+    plt.plot(X, t, 'o')
+
+    mn = [mn.item(i) for i in range(6)]
+    for i in range(100):
+        mu = np.random.multivariate_normal(mn, Sn)
+        mu = matrix(mu)
+        plot_polynomial(ls, mu, color='r')
+
     plt.show()
 
 def predict_polynomial_bayes(x, m, S, beta):
-	
-    phi = []
+    M = size(m, 1)
+    phi = array(ones(M))
     
-    for i in range(0,len(m)):
-        phi.append(x^i)
+    for i in range(0,size(m, 1)):
+        phi[i] = x ** i
 
     p_mean = np.dot(m,phi)
-    p_var = beta^(-1) + np.cross(np.cross(phi.T, S),phi)
+    p_var = beta**(-1) + phi.T.dot(S).dot(phi)
 
     return p_mean, p_var
 
 if __name__ == "__main__":
-    question_2_4()
+    question_2_4_b()
 

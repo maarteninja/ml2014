@@ -66,7 +66,7 @@ def plot_sine(linspace):
     t = array([math.sin(i) for i in linspace])
     plt.plot(linspace, t)
 
-def plot_polynomial(linspace, w):
+def plot_polynomial(linspace, w, color='g'):
     """ 
     generates 9 sinusoidal points with some noise. Fits 4 models polynomial
     using least squares solution for m = 0, 1, 3, 9. Pretty plots them all.
@@ -75,7 +75,7 @@ def plot_polynomial(linspace, w):
     f = [sum(w.item(p) * (x_point ** p) for p in range(size(w, 1))) for x_point in linspace]
 
     # make pretty plot
-    plt.plot(linspace, f)
+    plt.plot(linspace, f, color=color)
 
 def fit_polynomial_reg(x, t, m, lamb):
     """
