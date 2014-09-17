@@ -1,31 +1,44 @@
+from pylab import *
 import numpy as np
+from lab1 import create_phi, plot_sine, plot_polynomial
 import math
 import matplotlib.pyplot as plt
 
 
 def gen_sinusoidal2(n):
-    '''
-        QUESTION 1.1
-
-    Generates toy data like in MLPR book
-    Returns N-dimensional vectors x and t, where 
-    x contains evenly spaced values from 0 to 2pi
-    and elements ti of t are distributed according
-    to ti ~ N(mean, variance) where xi is the ith
-    element of x, the mean = sin(xi) and
-    standard deviation = 0.2
-
-    x, t = gen_sinusoidal(10)
-    '''
-    #x = np.linspace(0, 2*math.pi, n)
-    x = 2*math.pi*(np.rand(1,n))
+    x = 2*math.pi*(rand(1,n))[0]
+    t = []
     sigma = 0.2
     for i in x:
         mu = math.sin(i)
         s = np.random.normal(mu, sigma)
         t.append(s)
-    return x, np.array(t)
+    return x, array(t)
 
+def fit_polynomial_bayes(x, t, M, alpha, beta):
+    Phi = create_phi(x, t, M)
+    N = size(Phi, 1)
+    I = eye(N, N)
+
+    Sn = (beta * Phi.T.dot(Phi) + alpha * I).I
+    mn = beta * Sn.dot(Phi.T).dot(t)
+    
+    return Sn, mn
+
+def question_2_4():
+    N = 7
+    M = 5
+    alpha = 0.5
+    beta = 1/0.2**2
+    res = 1000
+
+    x, t = gen_sinusoidal2(N)
+    Sn, mn = fit_polynomial_bayes(x, t, M, alpha, beta)
+    ls = linspace(0, 2*math.pi, res)
+    plot_sine(ls)
+    plot_polynomial(ls, mn)
+    plt.plot(x, t, 'o')
+    plt.show()
 
 def predict_polynomial_bayes(x, m, S, beta)
 	
@@ -39,3 +52,7 @@ def predict_polynomial_bayes(x, m, S, beta)
 		phi.append(x^i)
     
     return p_mean, p_var
+
+if __name__ == "__main__":
+    question_2_4()
+

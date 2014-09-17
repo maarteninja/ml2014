@@ -1,4 +1,4 @@
-import numpy as np
+from pylab import *
 import math
 import matplotlib.pyplot as plt
 
@@ -17,14 +17,14 @@ def gen_sinusoidal(n):
 
     x, t = gen_sinusoidal(10)
     '''
-    x = np.linspace(0, 2*math.pi, n)
+    x = linspace(0, 2*math.pi, n)
     t = []
     sigma = 0.2
     for i in x:
         mu = math.sin(i)
-        s = np.random.normal(mu, sigma)
+        s = random.normal(mu, sigma)
         t.append(s)
-    return x, np.array(t)
+    return x, array(t)
 
 def create_phi(x, t, m):
     if m < 0:
@@ -33,16 +33,16 @@ def create_phi(x, t, m):
     # plus one for the non-optional first element of the bias vector ^0
     m += 1
     # create array of exponents [0, 1, ..., m-1]
-    phi = np.array(range(m))
+    phi = array(range(m))
     # reserve space for NxM design matrix
-    Phi = np.zeros((np.size(x), m))
+    Phi = zeros((size(x), m))
 
     for n, x_elem in enumerate(x):
         # create array filled with m copies of the nth datapoint
-        x_ar = np.array([x_elem] * m)
+        x_ar = array([x_elem] * m)
         # multiply with the bias vector
         Phi[n] = x_ar ** phi
-    return np.matrix(Phi)
+    return matrix(Phi)
 
 def fit_polynomial(x, t, m):
     '''
@@ -63,7 +63,7 @@ def fit_polynomial(x, t, m):
     return Phi.T.dot(Phi).I.dot(Phi.T).dot(t)
 
 def plot_sine(linspace):
-    t = np.array([math.sin(i) for i in linspace])
+    t = array([math.sin(i) for i in linspace])
     plt.plot(linspace, t)
 
 def plot_polynomial(linspace, w):
@@ -72,10 +72,72 @@ def plot_polynomial(linspace, w):
     using least squares solution for m = 0, 1, 3, 9. Pretty plots them all.
     """
     # for each x: sum for all m:  w[m]*x**m
-    f = [np.sum(w.item(p) * (x_point ** p) for p in range(np.size(w, 1))) for x_point in linspace]
+    f = [sum(w.item(p) * (x_point ** p) for p in range(size(w, 1))) for x_point in linspace]
 
     # make pretty plot
     plt.plot(linspace, f)
+
+def fit_polynomial_reg(x, t, m, lamb):
+    """
+    x, t = gen_sinusoidal(10)
+    w = fit_polynomial(x, t, 3)
+    """
+    Phi = create_phi(x, t, m)
+
+    i = np.eye(np.size(Phi, 1))
+
+    w = (lamb * i)
+    w = (w + Phi.T.dot(Phi)).I
+    w = w.dot(Phi.T).dot(t)
+    return w
+
+def kfold_indices(N, k):
+    """ Given function to generate indices of cross-validation folds """
+    all_indices = np.arange(N,dtype=int)
+    np.random.shuffle(all_indices)
+    idx = np.floor(np.linspace(0,N,k+1))
+    train_folds = []
+    valid_folds = []
+    for fold in range(k):
+        valid_indices = all_indices[idx[fold]:idx[fold+1]]
+        valid_folds.append(valid_indices)
+        train_folds.append(np.setdiff1d(all_indices, valid_indices))
+    return train_folds, valid_folds
+
+def model_selection_by_cross_validation():
+    n = k = 9
+    x, t = gen_sinusoidal(n)
+    indices = kfold_indices(n, k)
+
+    min_error = np.inf
+
+    # loop over m and lambda
+    for m in range(11):
+        for lambda_exp in range(10, -1, -1):
+
+            # set avg. error to 0 and calculate actual lambda value
+            avg_error = 0
+            lamb = np.e ** -lambda_exp
+
+            # loop over the folds
+            for train, heldout in zip(*indices):
+                # get the indices of the current fold
+                xs = [x[i] for i in train]
+                ts = [t[i] for i in train]
+
+                # fit model
+                w = fit_polynomial_reg(xs, ts, m, lamb)
+
+                # calculate error
+                t_value = t[heldout[0]]
+                x_value = x[heldout[0]]
+
+                prediction = [np.sum(w.item(p) * (x_value** p) for p in range(m+1))]
+                avg_error += (prediction - t_value)/k
+
+        if avg_error < min_error:
+            best_model = (m, lamb)
+    return m, lamb
 
 def run():
 
@@ -84,7 +146,7 @@ def run():
     res = 1000
 
     x, t = gen_sinusoidal(N)
-    linspace = np.linspace(0, 2*math.pi, res)
+    linspace = linspace(0, 2*math.pi, res)
 
     for i, m in enumerate(orders):
         w = fit_polynomial(x, t, m)
@@ -103,7 +165,6 @@ def run():
         plot_polynomial(linspace, w)
 
     plt.show()
-
 
 if __name__ == '__main__':
     run()
