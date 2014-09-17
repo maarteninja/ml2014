@@ -31,15 +31,23 @@ def question_2_4():
     alpha = 0.5
     beta = 1/0.2**2
     res = 1000
-
-    x, t = gen_sinusoidal2(N)
-    Sn, mn = fit_polynomial_bayes(x, t, M, alpha, beta)
-    p_mean, p_var = predict_polynomial_bayes(x, mn, Sn, beta)
+    X, t = gen_sinusoidal2(N)
+    Sn, mn = fit_polynomial_bayes(X, t, M, alpha, beta)
     ls = linspace(0, 2*math.pi, res)
     plot_sine(ls)
     plot_polynomial(ls, mn)
-	
-    plt.plot(x, t, 'o')
+    plt.plot(X, t, 'o')
+    upper = []
+    lower = []
+    for x in X:
+        mean, var = predict_polynomial_bayes(x, mn, Sn, beta)
+        mean = float(mean)
+        var = float(var)
+        upper.append(mean + sqrt(var))
+        lower.append(mean - sqrt(var))
+    lower = array(lower)
+    upper = array(upper)
+    plt.fill_between(X, lower, upper, alpha=0.1)
     plt.show()
 
 def predict_polynomial_bayes(x, m, S, beta):
