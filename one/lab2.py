@@ -34,7 +34,11 @@ def question_2_4():
 
     x, t = gen_sinusoidal2(N)
     Sn, mn = fit_polynomial_bayes(x, t, M, alpha, beta)
-    p_mean, p_var = predict_polynomial_bayes(x, mn, Sn, beta)
+    p_mean, p_var = predict_polynomial_bayes(0.5, mn, Sn, beta)
+    print p_mean, p_var
+#    for i:range(0,res)
+#        p_mean, p_var = predict_polynomial_bayes(i, mn, Sn, beta)
+#        plt.plot(
     ls = linspace(0, 2*math.pi, res)
     plot_sine(ls)
     plot_polynomial(ls, mn)
@@ -45,15 +49,18 @@ def question_2_4():
 def predict_polynomial_bayes(x, m, S, beta):
 	
     phi = []
-    
-    for i in range(0,len(m)):
-        phi.append(x^i)
+    a=m.size
+    for i in range(0,m.size):
+        
+        phi.append(x**i)
 
     p_mean = np.dot(m,phi)
-    p_var = beta^(-1) + np.cross(np.cross(phi.T, S),phi)
+    #p_var = beta^(-1) + np.cross(np.cross(phi.T, S),phi)
+    p_var = beta**(-1) + matrix(phi).dot(S).dot(matrix(phi).T)
 
     return p_mean, p_var
 
 if __name__ == "__main__":
     question_2_4()
+
 
