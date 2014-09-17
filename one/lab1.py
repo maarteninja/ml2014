@@ -1,4 +1,4 @@
-import numpy as np
+from pylab import *
 import math
 import matplotlib.pyplot as plt
 
@@ -17,14 +17,14 @@ def gen_sinusoidal(n):
 
     x, t = gen_sinusoidal(10)
     '''
-    x = np.linspace(0, 2*math.pi, n)
+    x = linspace(0, 2*math.pi, n)
     t = []
     sigma = 0.2
     for i in x:
         mu = math.sin(i)
-        s = np.random.normal(mu, sigma)
+        s = random.normal(mu, sigma)
         t.append(s)
-    return x, np.array(t)
+    return x, array(t)
 
 def create_phi(x, t, m):
     if m < 0:
@@ -33,16 +33,16 @@ def create_phi(x, t, m):
     # plus one for the non-optional first element of the bias vector ^0
     m += 1
     # create array of exponents [0, 1, ..., m-1]
-    phi = np.array(range(m))
+    phi = array(range(m))
     # reserve space for NxM design matrix
-    Phi = np.zeros((np.size(x), m))
+    Phi = zeros((size(x), m))
 
     for n, x_elem in enumerate(x):
         # create array filled with m copies of the nth datapoint
-        x_ar = np.array([x_elem] * m)
+        x_ar = array([x_elem] * m)
         # multiply with the bias vector
         Phi[n] = x_ar ** phi
-    return np.matrix(Phi)
+    return matrix(Phi)
 
 def fit_polynomial(x, t, m):
     '''
@@ -63,7 +63,7 @@ def fit_polynomial(x, t, m):
     return Phi.T.dot(Phi).I.dot(Phi.T).dot(t)
 
 def plot_sine(linspace):
-    t = np.array([math.sin(i) for i in linspace])
+    t = array([math.sin(i) for i in linspace])
     plt.plot(linspace, t)
 
 def plot_polynomial(linspace, w):
@@ -72,7 +72,7 @@ def plot_polynomial(linspace, w):
     using least squares solution for m = 0, 1, 3, 9. Pretty plots them all.
     """
     # for each x: sum for all m:  w[m]*x**m
-    f = [np.sum(w.item(p) * (x_point ** p) for p in range(np.size(w, 1))) for x_point in linspace]
+    f = [sum(w.item(p) * (x_point ** p) for p in range(size(w, 1))) for x_point in linspace]
 
     # make pretty plot
     plt.plot(linspace, f)
@@ -84,7 +84,7 @@ def run():
     res = 1000
 
     x, t = gen_sinusoidal(N)
-    linspace = np.linspace(0, 2*math.pi, res)
+    linspace = linspace(0, 2*math.pi, res)
 
     for i, m in enumerate(orders):
         w = fit_polynomial(x, t, m)
