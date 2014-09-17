@@ -26,3 +26,16 @@ def gen_sinusoidal2(n):
         t.append(s)
     return x, np.array(t)
 
+
+def predict_polynomial_bayes(x, m, S, beta)
+	
+    s = np.random.normal(mu, sigma)
+    #p_mean = mTN ϕ(x) = 
+    #p_var = 
+    phi = []
+    p_mean = []
+    
+    for i in len(m):
+		phi.append(x^i)
+    
+    return p_mean, p_var
