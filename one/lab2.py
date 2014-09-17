@@ -3,7 +3,7 @@ import math
 import matplotlib.pyplot as plt
 
 
-def gen_sinusoidal(n):
+def gen_sinusoidal2(n):
     '''
         QUESTION 1.1
 
