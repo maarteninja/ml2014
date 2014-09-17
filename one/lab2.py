@@ -31,7 +31,9 @@ def question_2_4():
     alpha = 0.5
     beta = 1/0.2**2
     res = 1000
-
+    X, t = gen_sinusoidal2(N)   
+    Sn, mn = fit_polynomial_bayes(X, t, M, alpha, beta)
+    
     ls = linspace(0, 2*math.pi, res)
     plot_sine(ls)
     plot_polynomial(ls, mn)
