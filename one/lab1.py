@@ -1,6 +1,7 @@
 from pylab import *
 import math
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 def gen_sinusoidal(n):
@@ -22,11 +23,15 @@ def gen_sinusoidal(n):
     sigma = 0.2
     for i in x:
         mu = math.sin(i)
-        s = random.normal(mu, sigma)
+        s = np.random.normal(mu, sigma)
         t.append(s)
     return x, array(t)
 
-def create_phi(x, t, m):
+def create_phi(x, m):
+    """
+    x, t = gen_sinusoidal(10)
+    create_phi(x, 5)
+    """
     if m < 0:
         raise ValueError('m can not be negative')
 
@@ -57,32 +62,37 @@ def fit_polynomial(x, t, m):
     w = fit_polynomial(x, t, 3)
     '''
 
-    Phi = create_phi(x, t, m)
+    phi = create_phi(x, m)
 
     # solve for w
-    return Phi.T.dot(Phi).I.dot(Phi.T).dot(t)
+    return phi.T.dot(phi).I.dot(phi.T).dot(t)
 
-def plot_sine(linspace):
+def plot_sine(linspace, label=None):
     t = array([math.sin(i) for i in linspace])
-    plt.plot(linspace, t)
+    if label:
+        print label
+        plt.plot(linspace, t, label=label)
+    else:
+        plt.plot(linspace, t)
 
-def plot_polynomial(linspace, w, color='g'):
-    """ 
-    generates 9 sinusoidal points with some noise. Fits 4 models polynomial
-    using least squares solution for m = 0, 1, 3, 9. Pretty plots them all.
-    """
+def plot_polynomial(linspace, w, color='g', label=None):
+    """ plots a function for a w over a given range for x"""
+
     # for each x: sum for all m:  w[m]*x**m
     f = [sum(w.item(p) * (x_point ** p) for p in range(size(w, 1))) for x_point in linspace]
 
     # make pretty plot
-    plt.plot(linspace, f, color=color)
+    if label:
+        plt.plot(linspace, f, color=color, label=label)
+    else:
+        plt.plot(linspace, f, color=color)
 
 def fit_polynomial_reg(x, t, m, lamb):
     """
     x, t = gen_sinusoidal(10)
-    w = fit_polynomial(x, t, 3)
+    w = fit_polynomial_reg(x, t, 3)
     """
-    Phi = create_phi(x, t, m)
+    Phi = create_phi(x, m)
 
     i = np.eye(np.size(Phi, 1))
 
@@ -104,40 +114,106 @@ def kfold_indices(N, k):
         train_folds.append(np.setdiff1d(all_indices, valid_indices))
     return train_folds, valid_folds
 
-def model_selection_by_cross_validation():
+
+def model_selection_by_cross_validation(data=None, plot=True):
+    """
+        QUESTION 1.5
+
+    Selects the optimal model using cross validation.
+
+    The keyword argument data indicated whether data is given or should be
+    generated (default=None, means it will be generated)
+
+    The keyword argument plot indicates whether the errors for the different m
+        and k is plotted (default=True).
+    """
     n = k = 9
-    x, t = gen_sinusoidal(n)
+    if not(data):
+        x, t = gen_sinusoidal(n)
+    else:
+        x, t = data
+
     indices = kfold_indices(n, k)
 
     min_error = np.inf
+    max_error = -np.inf
+
+    if plot:
+        afig, ax = plt.subplots()
 
     # loop over m and lambda
-    for m in range(11):
-        for lambda_exp in range(10, -1, -1):
+    for lambda_exp in range(-10, 1):
+        errors = []
+        lamb = np.e ** lambda_exp
+        for m in range(9):
 
             # set avg. error to 0 and calculate actual lambda value
-            avg_error = 0
-            lamb = np.e ** -lambda_exp
+            error = 0
 
             # loop over the folds
             for train, heldout in zip(*indices):
+
                 # get the indices of the current fold
                 xs = [x[i] for i in train]
                 ts = [t[i] for i in train]
 
-                # fit model
+                # fit model, on selected points
                 w = fit_polynomial_reg(xs, ts, m, lamb)
+                #w = fit_polynomial(xs, ts, m)
 
-                # calculate error
+                # get the value were going to predict on
                 t_value = t[heldout[0]]
                 x_value = x[heldout[0]]
 
-                prediction = [np.sum(w.item(p) * (x_value** p) for p in range(m+1))]
-                avg_error += (prediction - t_value)/k
+                # predict: t = w0 * x ** 0 + w1 ** x ** 1 + ...
+                prediction = [np.sum(w.item(p) * (x_value** p) for p in range(size(w, 1)))][0]
 
-        if avg_error < min_error:
-            best_model = (m, lamb)
-    return m, lamb
+                error += .5 * float(prediction - t_value) ** 2 + (lamb/2.) * float(w.dot(w.T))
+
+            errors.append(error)
+
+            if error < min_error:
+                min_error = error
+                best_model = (m, lambda_exp)
+            if error > max_error:
+                max_error = error
+
+        if plot:
+            ax.plot(range(9), errors, label="lambda = e^" + str(lambda_exp))
+
+    if plot:
+        legend = ax.legend(loc='upper left')
+        ax.set_ylim((0, max_error))
+        ax.set_xlabel("m")
+        ax.set_ylabel("average absolute error")
+        ax.set_title("Error for lambda and m")
+
+        plt.show()
+
+    return best_model
+
+def plot_best_cross_validated_fit():
+    """
+        QUESTION 1.6
+    """
+    n = 9
+    x, t = gen_sinusoidal(n)
+    best_m, best_lamb = model_selection_by_cross_validation(data=(x,t), plot=False)
+    w = fit_polynomial_reg(x, t, best_m, best_lamb)
+
+    print 'best_m', best_m, 'best lamb', best_lamb
+
+    linspace = np.linspace(0, 2*math.pi, 1000)
+    plot_polynomial(linspace, w, label='best fit')
+    plot_sine(linspace, label='true sin')
+    plot(x, t, 'o')
+    plt.xlabel('x')
+    plt.ylabel('y')
+    plt.title('m = %d, lambda = e^%d' % (best_m, best_lamb))
+    legend()
+    plt.show()
+
+
 
 def run():
 
@@ -146,7 +222,7 @@ def run():
     res = 1000
 
     x, t = gen_sinusoidal(N)
-    linspace = linspace(0, 2*math.pi, res)
+    linspace = np.linspace(0, 2*math.pi, res)
 
     for i, m in enumerate(orders):
         w = fit_polynomial(x, t, m)
@@ -160,11 +236,13 @@ def run():
         plt.tight_layout()
 
         plt.plot(x, t, 'o')
-        
+
         plot_sine(linspace)
         plot_polynomial(linspace, w)
 
     plt.show()
 
 if __name__ == '__main__':
-    run()
+    #run()
+    print model_selection_by_cross_validation()
+    plot_best_cross_validated_fit()
