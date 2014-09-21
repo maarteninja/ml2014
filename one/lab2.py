@@ -16,13 +16,13 @@ def gen_sinusoidal2(n):
     return x, array(t)
 
 def fit_polynomial_bayes(x, t, M, alpha, beta):
-    Phi = create_phi(x, t, M)
+    Phi = create_phi(x, M)
     N = size(Phi, 1)
     I = eye(N, N)
 
     Sn = (beta * Phi.T.dot(Phi) + alpha * I).I
     mn = beta * Sn.dot(Phi.T).dot(t)
-    
+
     return Sn, mn
 
 def question_2_4_a():
@@ -31,9 +31,9 @@ def question_2_4_a():
     alpha = 0.5
     beta = 1/0.2**2
     res = 1000
-    X, t = gen_sinusoidal2(N)   
+    X, t = gen_sinusoidal2(N)
     Sn, mn = fit_polynomial_bayes(X, t, M, alpha, beta)
-    
+
     ls = linspace(0, 2*math.pi, res)
     plot_sine(ls)
     plot_polynomial(ls, mn)

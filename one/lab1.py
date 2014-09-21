@@ -215,7 +215,10 @@ def plot_best_cross_validated_fit():
 
 
 
-def run():
+def one_point_three():
+    """
+        QUESTION 1.3
+    """
 
     N = 10
     orders = [0, 1, 3, 9]
@@ -243,6 +246,6 @@ def run():
     plt.show()
 
 if __name__ == '__main__':
-    #run()
-    print model_selection_by_cross_validation()
-    plot_best_cross_validated_fit()
+    one_point_three()
+    #print model_selection_by_cross_validation()
+    #plot_best_cross_validated_fit()
