@@ -52,14 +52,16 @@ def logreg_gradient(x, t, w, b):
     for j, logq_j in enumerate(logqs):
         t_is_j = 1 if j == t else 0
         # equation states q_j, so we take the exp of the log
-        delta_q_j = t_is_j - np.exp(logq_j)/z
+        # FIXME: should be checked: is this the sum exp trick applied? We do
+        # np.exp(logq_j - np.log(z)) instead of: np.exp(logq_j)/z 
+        delta_q_j = t_is_j - np.exp(logq_j - np.log(z))
         # delta_b_j = delta^q_j
-        grad_b.append( delta_q_j )
+        grad_b.append(delta_q_j)
 
+        # FIXME: should be able to do this with a matrix calculation!
         grad_w.append([])
         for i in xrange(np.shape(w)[1]):
             grad_w[j].append( delta_q_j * x[i] )
-
 
     # make np,matrices
     grad_w = np.matrix(grad_w)
@@ -94,13 +96,15 @@ def sgd_iter(x_train, t_train, w, b):
         w += eta * delta_w
         b += eta * delta_b
 
-        print 'b', b
-        #print 'w', w
-        print 'sumsum w', sum(sum(w))
+        # can we make sense of this? maybe??
+        #print 'b', b
+        #print 'sumsum w', sum(sum(w))
+        #print 'max w', w.max()
+        #print 'min w', w.min()
     return w, b
 
 if __name__ == '__main__':
-    # given tests
+    # load the heck out of the given data!!
     (x_train, t_train), (x_valid, t_valid), (x_test, t_test) = load_mnist()
 
     # uncomment for plot of the digits
