@@ -41,7 +41,7 @@ def logreg_gradient(x, t, w, b):
     # first calculate all q_j's (log q_j = w_j ^ T x + b_j)
     # also calculate Z (= sum over all q_j's)
     for j in range(len(b)):
-        logq_j = w[j].dot(x) + b[j]
+        logq_j = w[j].T.dot(x) + b[j]
         z += np.exp(logq_j)
         logqs.append(logq_j)
 
@@ -51,20 +51,22 @@ def logreg_gradient(x, t, w, b):
 
     for j, logq_j in enumerate(logqs):
         t_is_j = 1 if j == t else 0
-        # equation states q_j, but we have stored log(q_j), so I take the exp to obtain q_j
-        grad_b.append( t_is_j - np.exp(logq_j)/z ) # (1) - delta^q_j = q_j / sum q
+        # equation states q_j, so we take the exp of the log
+        delta_q_j = t_is_j - np.exp(logq_j)/z
+        # delta_b_j = delta^q_j
+        grad_b.append( delta_q_j )
 
-        # equation delta_q^j * 1/(w_j^T*x + b_j) * x_i
-        # we know log(q_j) =  w_j^T*x + b_j
-        grad_w.append( grad_b[-1] * 1./ logq_j )
+        grad_w.append([])
+        for i in xrange(np.shape(w)[1]):
+            grad_w[j].append( delta_q_j * x[i] )
 
-    # do not forget the multiply with x_i which we do at the end
-    print np.shape(x), 'x'
-    print np.shape(grad_w), 'grad_w'
-    grad_w = np.matrix(grad_w).dot(x)
+
+    # make np,matrices
+    grad_w = np.matrix(grad_w)
+    grad_b = np.array(grad_b)
 
     # return em as matrices
-    return grad_w, np.matrix(grad_b)
+    return grad_w, grad_b
 
 def sgd_iter(x_train, t_train, w, b):
     """
@@ -89,8 +91,12 @@ def sgd_iter(x_train, t_train, w, b):
     for x, t in data:
         # get the gradient for current datapoint
         delta_w, delta_b = logreg_gradient(x, t, w, b)
-        w[t] += eta * delta_w
-        b += eta * delta_b 
+        w += eta * delta_w
+        b += eta * delta_b
+
+        print 'b', b
+        #print 'w', w
+        print 'sumsum w', sum(sum(w))
     return w, b
 
 if __name__ == '__main__':
@@ -101,7 +107,7 @@ if __name__ == '__main__':
     #plot_digits(x_train[0:8], numcols=4)
 
     # initialize w and b at zeroes
-    w = np.zeros((10, 28**2))
+    w = np.zeros((10, 784))
     b = np.zeros(10)
 
     # perform 1 sgd iteration
