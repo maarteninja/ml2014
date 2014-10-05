@@ -138,7 +138,7 @@ def train_and_plot(verbose=False):
     for i in xrange(handful_of_iterations):
 
         if verbose and i%10 == 0:
-            print '(train_and_plot) iteration %d', i
+            print '(train_and_plot) iteration %d' % i
 
         # if training on a subset:
         # shuffle and select subset of data for 1 iteration (because otherwise
